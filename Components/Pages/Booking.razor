@@ -1,0 +1,270 @@
+@page "/booking"
+@rendermode InteractiveServer
+
+@using Microsoft.EntityFrameworkCore
+@using SkyTicket.Data.Models
+
+@inject SkyTicketContext Db
+@inject NavigationManager Navigation
+
+<PageTitle>Бронирование — SkyTicket</PageTitle>
+
+<div class="booking-page">
+
+    @if (flight == null)
+    {
+        <p>Загрузка информации о рейсе...</p>
+    }
+    else
+    {
+        <div class="booking-header">
+
+            <h1>Бронирование билета</h1>
+
+            <p>Введите данные пассажира</p>
+
+        </div>
+
+
+        <div class="selected-flight">
+
+            <h2>
+                @flight.DepartureAirport.City
+                →
+                @flight.ArrivalAirport.City
+            </h2>
+
+            <div class="booking-flight-info">
+
+                <span>
+                    @flight.DepartureTime.ToString("dd.MM.yyyy")
+                </span>
+
+                <span>
+                    @flight.DepartureTime.ToString("HH:mm")
+                    —
+                    @flight.ArrivalTime.ToString("HH:mm")
+                </span>
+
+                <span>
+                    @flight.FlightNumber
+                </span>
+
+                <strong>
+                    @flight.Price.ToString("N0") ₽
+                </strong>
+
+            </div>
+
+            <div class="booking-airports">
+
+                @flight.DepartureAirport.Name
+                (@flight.DepartureAirport.Code)
+
+                →
+
+                @flight.ArrivalAirport.Name
+                (@flight.ArrivalAirport.Code)
+
+            </div>
+
+        </div>
+
+
+        <div class="passenger-form">
+
+            <h2>Данные пассажира</h2>
+
+
+            <div class="form-row">
+
+                <div class="field">
+
+                    <label>Фамилия</label>
+
+                    <input type="text"
+                           @bind="LastName"
+                           placeholder="Иванов" />
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Имя</label>
+
+                    <input type="text"
+                           @bind="FirstName"
+                           placeholder="Иван" />
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="field">
+
+                    <label>Отчество</label>
+
+                    <input type="text"
+                           @bind="Patronymic"
+                           placeholder="Иванович" />
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Дата рождения</label>
+
+                    <input type="date"
+                           @bind="BirthDate" />
+
+                </div>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>Номер паспорта</label>
+
+                <input type="text"
+                       value="@PassportDisplay"
+                       @oninput="OnPassportInput"
+                       maxlength="11"
+                       inputmode="numeric"
+                       placeholder="0000 000000" />
+
+            </div>
+
+
+            <button class="booking-button"
+                    @onclick="ContinueBooking">
+
+                Продолжить
+
+            </button>
+
+        </div>
+    }
+
+</div>
+
+
+@code {
+
+    [SupplyParameterFromQuery(Name = "flightId")]
+    private int? FlightId { get; set; }
+
+
+    private Flight? flight;
+
+
+    private string LastName = "";
+
+    private string FirstName = "";
+
+    private string Patronymic = "";
+
+    private DateTime? BirthDate;
+
+
+    // В базе хранится 10 цифр без пробела
+    private string PassportNumber = "";
+
+    // В поле отображается формат 0000 000000
+    private string PassportDisplay = "";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (FlightId.HasValue)
+        {
+            flight = await Db.Flights
+                .Include(f => f.DepartureAirport)
+                .Include(f => f.ArrivalAirport)
+                .FirstOrDefaultAsync(
+                    f => f.Id == FlightId.Value);
+        }
+    }
+
+
+    private void OnPassportInput(ChangeEventArgs e)
+    {
+        string value = e.Value?.ToString() ?? "";
+
+
+        // Оставляем только цифры
+        string digits = new string(
+            value
+                .Where(char.IsDigit)
+                .Take(10)
+                .ToArray());
+
+
+        // Сохраняем 10 цифр без пробела
+        PassportNumber = digits;
+
+
+        // Форматируем для отображения:
+        // 0000 000000
+        if (digits.Length > 4)
+        {
+            PassportDisplay =
+                digits.Substring(0, 4)
+                + " "
+                + digits.Substring(4);
+        }
+        else
+        {
+            PassportDisplay = digits;
+        }
+    }
+
+
+    private async Task ContinueBooking()
+    {
+        if (string.IsNullOrWhiteSpace(LastName) ||
+            string.IsNullOrWhiteSpace(FirstName) ||
+            !BirthDate.HasValue ||
+            PassportNumber.Length != 10)
+        {
+            return;
+        }
+
+
+        Passenger? passenger =
+            await Db.Passengers
+                .FirstOrDefaultAsync(
+                    p => p.PassportNumber == PassportNumber);
+
+
+        if (passenger == null)
+        {
+            passenger = new Passenger
+            {
+                LastName = LastName,
+
+                FirstName = FirstName,
+
+                Patronymic = Patronymic,
+
+                BirthDate = BirthDate.Value,
+
+                PassportNumber = PassportNumber
+            };
+
+            Db.Passengers.Add(passenger);
+
+            await Db.SaveChangesAsync();
+        }
+
+
+        Navigation.NavigateTo(
+            $"/seat-selection?flightId={FlightId}&passengerId={passenger.Id}");
+    }
+
+}

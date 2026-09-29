@@ -1,0 +1,231 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+@using Microsoft.EntityFrameworkCore
+@using SkyTicket.Data.Models
+
+@inject NavigationManager Navigation
+@inject SkyTicketContext Db
+
+<PageTitle>SkyTicket</PageTitle>
+
+<div class="hero">
+
+
+    <div class="search-box">
+
+        <h2>Найдите свой рейс</h2>
+
+        <div class="search-fields">
+
+            <!-- ОТКУДА -->
+
+            <div class="field airport-field">
+
+                <label>Откуда</label>
+
+                <input type="text"
+                       placeholder="Город или аэропорт"
+                       value="@DepartureText"
+                       @oninput="OnDepartureInput"
+                       autocomplete="off" />
+
+
+                @if (DepartureSuggestions.Count > 0)
+                {
+                    <div class="airport-suggestions">
+
+                        @foreach (var airport in DepartureSuggestions)
+                        {
+                            <button type="button"
+                                    class="airport-option"
+                                    @onclick="() => SelectDeparture(airport)">
+
+                                @airport.City — @airport.Name (@airport.Code)
+
+                            </button>
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- КУДА -->
+
+            <div class="field airport-field">
+
+                <label>Куда</label>
+
+                <input type="text"
+                       placeholder="Город или аэропорт"
+                       value="@ArrivalText"
+                       @oninput="OnArrivalInput"
+                       autocomplete="off" />
+
+
+                @if (ArrivalSuggestions.Count > 0)
+                {
+                    <div class="airport-suggestions">
+
+                        @foreach (var airport in ArrivalSuggestions)
+                        {
+                            <button type="button"
+                                    class="airport-option"
+                                    @onclick="() => SelectArrival(airport)">
+
+                                @airport.City — @airport.Name (@airport.Code)
+
+                            </button>
+
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- ДАТА -->
+
+            <div class="field">
+
+                <label>Дата вылета</label>
+
+                <input type="date"
+                       @bind="DepartureDate" />
+
+            </div>
+
+        </div>
+
+
+        <button class="search-button"
+                @onclick="SearchFlights">
+
+            Найти рейсы
+
+        </button>
+
+    </div>
+
+</div>
+
+
+@code {
+
+    private List<Airport> Airports = new();
+
+    private List<Airport> DepartureSuggestions = new();
+
+    private List<Airport> ArrivalSuggestions = new();
+
+
+    private string DepartureText = "";
+
+    private string ArrivalText = "";
+
+
+    private string Departure = "";
+
+    private string Arrival = "";
+
+
+    private DateTime? DepartureDate;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Airports = await Db.Airports
+            .OrderBy(a => a.City)
+            .ThenBy(a => a.Name)
+            .ToListAsync();
+    }
+
+
+    private void OnDepartureInput(ChangeEventArgs e)
+    {
+        DepartureText = e.Value?.ToString() ?? "";
+
+        DepartureSuggestions = FindAirports(DepartureText);
+    }
+
+
+    private void OnArrivalInput(ChangeEventArgs e)
+    {
+        ArrivalText = e.Value?.ToString() ?? "";
+
+        ArrivalSuggestions = FindAirports(ArrivalText);
+    }
+
+
+    private List<Airport> FindAirports(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return new List<Airport>();
+        }
+
+
+        return Airports
+            .Where(a =>
+                a.City.Contains(
+                    text,
+                    StringComparison.OrdinalIgnoreCase)
+
+                ||
+
+                a.Name.Contains(
+                    text,
+                    StringComparison.OrdinalIgnoreCase)
+
+                ||
+
+                a.Code.Contains(
+                    text,
+                    StringComparison.OrdinalIgnoreCase))
+            .Take(5)
+            .ToList();
+    }
+
+
+    private void SelectDeparture(Airport airport)
+    {
+        DepartureText =
+            $"{airport.City} — {airport.Name} ({airport.Code})";
+
+        Departure = airport.Code;
+
+        DepartureSuggestions.Clear();
+    }
+
+
+    private void SelectArrival(Airport airport)
+    {
+        ArrivalText =
+            $"{airport.City} — {airport.Name} ({airport.Code})";
+
+        Arrival = airport.Code;
+
+        ArrivalSuggestions.Clear();
+    }
+
+
+    private void SearchFlights()
+    {
+        var url = Navigation.GetUriWithQueryParameters(
+            "/flights",
+            new Dictionary<string, object?>
+            {
+                ["departure"] = Departure,
+
+                ["arrival"] = Arrival,
+
+                ["date"] = DepartureDate
+            });
+
+        Navigation.NavigateTo(url);
+    }
+
+}

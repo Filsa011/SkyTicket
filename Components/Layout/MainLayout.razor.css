@@ -1,0 +1,94 @@
+.sky-layout {
+    min-height: 100vh;
+
+    background:
+        linear-gradient(
+            rgba(0, 0, 0, 0.08),
+            rgba(0, 0, 0, 0.08)
+        ),
+        url('/images/plane.jpg') center center / cover no-repeat;
+
+    background-attachment: fixed;
+
+    padding-top: 30px;
+}
+
+
+/* =========================
+   ШАПКА САЙТА
+   ========================= */
+
+.site-header {
+    width: fit-content;
+
+    max-width: calc(100% - 40px);
+
+    margin: 0 auto 30px;
+
+    padding: 14px 35px;
+
+    background: rgba(255, 255, 255, 0.78);
+
+    border-radius: 15px;
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.12);
+}
+
+.site-header h1 {
+    margin: 0 0 6px;
+
+    font-size: 48px;
+
+    font-weight: 500;
+
+    color: #222;
+
+    text-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.site-header p {
+    margin: 0;
+
+    font-size: 18px;
+
+    color: #333;
+}
+
+
+/* =========================
+   СОДЕРЖИМОЕ
+   ========================= */
+
+.site-content {
+    width: 100%;
+}
+
+
+/* =========================
+   МОБИЛЬНАЯ ВЕРСИЯ
+   ========================= */
+
+@media (max-width: 700px) {
+
+    .sky-layout {
+        padding-top: 20px;
+    }
+
+    .site-header {
+        padding: 11px 22px;
+
+        margin-bottom: 20px;
+    }
+
+    .site-header h1 {
+        font-size: 34px;
+    }
+
+    .site-header p {
+        font-size: 14px;
+    }
+}

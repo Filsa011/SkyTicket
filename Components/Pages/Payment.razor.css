@@ -1,0 +1,250 @@
+.payment-page {
+    min-height: calc(100vh - 150px);
+
+    background: transparent;
+
+    padding: 35px 20px 60px;
+
+    font-family: Arial, sans-serif;
+
+    color: #20242a;
+}
+
+
+/* =========================================================
+   ЗАГОЛОВОК
+   ========================================================= */
+
+.payment-header {
+    max-width: 700px;
+
+    margin: 0 auto 25px;
+
+    padding: 22px 30px;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.10);
+}
+
+.payment-header h1 {
+    margin: 0;
+
+    font-size: 34px;
+
+    color: #20242a;
+}
+
+.payment-header p {
+    margin: 8px 0 0;
+
+    color: #69737d;
+
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   ОСНОВНАЯ КАРТОЧКА
+   ========================================================= */
+
+.payment-card {
+    max-width: 700px;
+
+    margin: 0 auto;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border-radius: 20px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 6px 25px rgba(0, 0, 0, 0.10);
+}
+
+.payment-card h2 {
+    margin-top: 0;
+
+    margin-bottom: 25px;
+}
+
+
+/* =========================================================
+   МАРШРУТ
+   ========================================================= */
+
+.route {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 20px;
+
+    padding: 25px;
+
+    background: #f4f7fa;
+
+    border-radius: 15px;
+
+    font-size: 25px;
+}
+
+.route span {
+    color: #0c2f42;
+
+    font-size: 30px;
+}
+
+
+/* =========================================================
+   ИНФОРМАЦИЯ О РЕЙСЕ
+   ========================================================= */
+
+.payment-info {
+    margin-top: 25px;
+
+    padding: 20px;
+
+    border: 1px solid #e3e7eb;
+
+    border-radius: 14px;
+}
+
+.payment-info p {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin: 12px 0;
+
+    color: #59636e;
+}
+
+.payment-info strong {
+    color: #20242a;
+}
+
+.payment-info .price {
+    margin-top: 20px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid #e3e7eb;
+
+    font-size: 20px;
+}
+
+
+/* =========================================================
+   СПОСОБ ОПЛАТЫ
+   ========================================================= */
+
+.payment-method {
+    margin-top: 30px;
+}
+
+.payment-method h2 {
+    margin-bottom: 12px;
+
+    font-size: 22px;
+}
+
+.payment-method select {
+    width: 100%;
+
+    padding: 14px 15px;
+
+    border: 1px solid #cfd6dd;
+
+    border-radius: 10px;
+
+    background: white;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+    outline: none;
+}
+
+.payment-method select:focus {
+    border-color: #0c2f42;
+
+    box-shadow:
+        0 0 0 3px rgba(12, 47, 66, 0.12);
+}
+
+
+/* =========================================================
+   КНОПКА ОПЛАТЫ
+   ========================================================= */
+
+.pay-button {
+    width: 100%;
+
+    margin-top: 30px;
+
+    padding: 16px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #0c2f42;
+
+    color: white;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s,
+        transform 0.2s;
+}
+
+.pay-button:hover {
+    background: #103f58;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   АДАПТИВНОСТЬ
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .payment-page {
+        padding: 25px 15px 50px;
+    }
+
+    .payment-header {
+        padding: 20px;
+    }
+
+    .payment-header h1 {
+        font-size: 29px;
+    }
+
+    .payment-card {
+        padding: 22px;
+    }
+
+    .route {
+        font-size: 21px;
+
+        padding: 20px;
+
+        gap: 12px;
+    }
+}

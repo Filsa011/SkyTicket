@@ -1,0 +1,282 @@
+@page "/seat-selection"
+@rendermode InteractiveServer
+
+@using Microsoft.EntityFrameworkCore
+@using SkyTicket.Data.Models
+
+@inject SkyTicketContext Db
+@inject NavigationManager Navigation
+
+<PageTitle>Выбор места — SkyTicket</PageTitle>
+
+<div class="seat-page">
+
+    <div class="seat-header">
+        <h1>Выберите место в самолёте</h1>
+        <p>Выберите свободное место в салоне</p>
+    </div>
+
+
+    @if (flight == null)
+    {
+        <p>Загрузка информации о рейсе...</p>
+    }
+    else
+    {
+        <div class="flight-card">
+
+            <div class="flight-top">
+
+                <div>
+                    <span class="flight-number">
+                        ✈ @flight.FlightNumber
+                    </span>
+
+                    <h2>
+                        @flight.DepartureAirport.City
+                        →
+                        @flight.ArrivalAirport.City
+                    </h2>
+
+                    <div class="airport-codes">
+                        @flight.DepartureAirport.Code
+                        →
+                        @flight.ArrivalAirport.Code
+                    </div>
+                </div>
+
+                <div class="flight-date">
+
+                    📅
+                    @flight.DepartureTime.ToString("dd.MM.yyyy")
+
+                    <br />
+
+                    @flight.DepartureTime.ToString("HH:mm")
+
+                </div>
+
+            </div>
+
+
+            <div class="flight-details">
+
+                <div>
+                    <span>Самолёт</span>
+                    <strong>@flight.Aircraft.Model</strong>
+                </div>
+
+                <div>
+                    <span>Класс</span>
+                    <strong>Эконом</strong>
+                </div>
+
+                <div>
+                    <span>Пассажиров</span>
+                    <strong>1</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="airplane-section">
+
+            <div class="airplane">
+
+                <div class="exit-top">
+                    ↑
+                    <span>Выход</span>
+                </div>
+
+
+                <div class="seat-labels">
+
+                    <span></span>
+
+                    <span>A</span>
+                    <span>B</span>
+                    <span>C</span>
+
+                    <span></span>
+
+                    <span>D</span>
+                    <span>E</span>
+                    <span>F</span>
+
+                    <span></span>
+
+                </div>
+
+
+                <div class="seat-map">
+
+                    @for (int row = 1; row <= 15; row++)
+                    {
+                        <div class="seat-row">
+
+                            @if (row % 3 == 1)
+                            {
+                                <span class="window">│</span>
+                            }
+                            else
+                            {
+                                <span></span>
+                            }
+
+
+                            @for (int number = 0; number < 3; number++)
+                            {
+                                var seat = $"{row}{(char)('A' + number)}";
+
+                                <button type="button"
+                                        class="seat @(SelectedSeat == seat ? "selected" : "") @(OccupiedSeats.Contains(seat) ? "occupied" : "")"
+                                        disabled="@OccupiedSeats.Contains(seat)"
+                                        @onclick="() => SelectSeat(seat)">
+
+                                    @seat
+
+                                </button>
+                            }
+
+
+                            <div class="aisle">
+                                @row
+                            </div>
+
+
+                            @for (int number = 3; number < 6; number++)
+                            {
+                                var seat = $"{row}{(char)('A' + number)}";
+
+                                <button type="button"
+                                        class="seat @(SelectedSeat == seat ? "selected" : "") @(OccupiedSeats.Contains(seat) ? "occupied" : "")"
+                                        disabled="@OccupiedSeats.Contains(seat)"
+                                        @onclick="() => SelectSeat(seat)">
+
+                                    @seat
+
+                                </button>
+                            }
+
+
+                            @if (row % 3 == 1)
+                            {
+                                <span class="window">│</span>
+                            }
+                            else
+                            {
+                                <span></span>
+                            }
+
+                        </div>
+                    }
+
+                </div>
+
+
+                <div class="exit-bottom">
+
+                    <span>Выход</span>
+
+                    ↓
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        @if (!string.IsNullOrEmpty(SelectedSeat))
+        {
+            <div class="selected-info">
+
+                <div>
+                    <strong>Выбрано место:</strong>
+
+                    <span class="selected-seat-number">
+                        @SelectedSeat
+                    </span>
+                </div>
+
+                <div>
+                    <strong>Стоимость:</strong>
+
+                    @flight.Price.ToString("N0") ₽
+                </div>
+
+            </div>
+
+
+            <button class="booking-button"
+                    @onclick="ContinueToPayment">
+
+                Сохранить выбор
+
+            </button>
+        }
+
+    }
+
+</div>
+
+
+@code {
+
+    [SupplyParameterFromQuery(Name = "flightId")]
+    private int? FlightId { get; set; }
+
+
+    [SupplyParameterFromQuery(Name = "passengerId")]
+    private int? PassengerId { get; set; }
+
+
+    private Flight? flight;
+
+
+    private string SelectedSeat = "";
+
+
+    private List<string> OccupiedSeats = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (FlightId.HasValue)
+        {
+            flight = await Db.Flights
+                .Include(f => f.DepartureAirport)
+                .Include(f => f.ArrivalAirport)
+                .Include(f => f.Aircraft)
+                .FirstOrDefaultAsync(
+                    f => f.Id == FlightId.Value);
+
+
+            OccupiedSeats = await Db.Bookings
+                .Where(b => b.FlightId == FlightId.Value)
+                .Select(b => b.SeatNumber)
+                .ToListAsync();
+        }
+    }
+
+
+    private void SelectSeat(string seat)
+    {
+        if (OccupiedSeats.Contains(seat))
+        {
+            return;
+        }
+
+        SelectedSeat = seat;
+    }
+
+
+    private void ContinueToPayment()
+    {
+        Navigation.NavigateTo(
+            $"/payment?flightId={FlightId}&passengerId={PassengerId}&seat={SelectedSeat}");
+    }
+
+}

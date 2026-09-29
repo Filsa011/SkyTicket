@@ -1,0 +1,196 @@
+@page "/flights"
+@rendermode InteractiveServer
+
+@using Microsoft.EntityFrameworkCore
+@using SkyTicket.Data.Models
+
+@inject SkyTicketContext Db
+@inject NavigationManager Navigation
+
+<PageTitle>Результаты поиска — SkyTicket</PageTitle>
+
+<div class="flights-page">
+
+    <div class="flights-header">
+
+        <h1>Найденные рейсы</h1>
+
+        @if (!string.IsNullOrWhiteSpace(Departure) &&
+             !string.IsNullOrWhiteSpace(Arrival))
+        {
+            <p>@Departure → @Arrival</p>
+        }
+        else
+        {
+            <p>Все доступные рейсы</p>
+        }
+
+    </div>
+
+
+    @if (flights == null)
+    {
+        <p>Загрузка рейсов...</p>
+    }
+    else if (flights.Count == 0)
+    {
+        <div class="no-flights">
+
+            <h3>Рейсы не найдены</h3>
+
+            <p>
+                Попробуйте изменить параметры поиска.
+            </p>
+
+        </div>
+    }
+    else
+    {
+        @foreach (var flight in flights)
+        {
+            <div class="flight-card">
+
+                <div class="flight-info">
+
+                    <div class="flight-route">
+
+                        <strong>
+                            @flight.DepartureAirport.City
+                        </strong>
+
+                        <span>→</span>
+
+                        <strong>
+                            @flight.ArrivalAirport.City
+                        </strong>
+
+                    </div>
+
+
+                    <div class="flight-details">
+
+                        <span>
+                            @flight.DepartureTime.ToString("dd.MM.yyyy HH:mm")
+                        </span>
+
+                        <span>
+                            @flight.FlightNumber
+                        </span>
+
+                        <span>
+                            @GetDuration(
+                                flight.DepartureTime,
+                                flight.ArrivalTime)
+                        </span>
+
+                    </div>
+
+
+                    <div class="airport-codes">
+
+                        @flight.DepartureAirport.Name
+                        (@flight.DepartureAirport.Code)
+
+                        →
+
+                        @flight.ArrivalAirport.Name
+                        (@flight.ArrivalAirport.Code)
+
+                    </div>
+
+                </div>
+
+
+                <div class="flight-price">
+
+                    <strong>
+                        @flight.Price.ToString("N0") ₽
+                    </strong>
+
+                    <button @onclick="() => SelectFlight(flight.Id)">
+                        Выбрать рейс
+                    </button>
+
+                </div>
+
+            </div>
+        }
+    }
+
+</div>
+
+
+@code {
+
+    [SupplyParameterFromQuery(Name = "departure")]
+    private string? Departure { get; set; }
+
+    [SupplyParameterFromQuery(Name = "arrival")]
+    private string? Arrival { get; set; }
+
+    [SupplyParameterFromQuery(Name = "date")]
+    private DateTime? DepartureDate { get; set; }
+
+    [SupplyParameterFromQuery(Name = "passengers")]
+    private int? Passengers { get; set; }
+
+
+    private List<Flight>? flights;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var query = Db.Flights
+            .Include(f => f.DepartureAirport)
+            .Include(f => f.ArrivalAirport)
+            .AsQueryable();
+
+
+        if (!string.IsNullOrWhiteSpace(Departure))
+        {
+            query = query.Where(f =>
+                f.DepartureAirport.Code == Departure);
+        }
+
+
+        if (!string.IsNullOrWhiteSpace(Arrival))
+        {
+            query = query.Where(f =>
+                f.ArrivalAirport.Code == Arrival);
+        }
+
+
+        if (DepartureDate.HasValue)
+        {
+            var startDate = DepartureDate.Value.Date;
+            var endDate = startDate.AddDays(1);
+
+            query = query.Where(f =>
+                f.DepartureTime >= startDate &&
+                f.DepartureTime < endDate);
+        }
+
+
+        flights = await query
+            .OrderBy(f => f.DepartureTime)
+            .ToListAsync();
+    }
+
+
+    private void SelectFlight(int flightId)
+    {
+        Navigation.NavigateTo(
+            $"/booking?flightId={flightId}");
+    }
+
+
+    private string GetDuration(
+        DateTime departure,
+        DateTime arrival)
+    {
+        var duration = arrival - departure;
+
+        return $"{(int)duration.TotalHours} ч {duration.Minutes} мин";
+    }
+
+}

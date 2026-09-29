@@ -1,0 +1,571 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: #20242a;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+button,
+input,
+select {
+    font-family: inherit;
+}
+
+
+/* =========================================================
+   ОБЩИЕ КНОПКИ
+   ========================================================= */
+
+.search-button,
+.flight-price button,
+.booking-button,
+.pay-button,
+.home-button {
+    background: #0c2f42;
+    color: white;
+}
+
+.search-button:hover,
+.flight-price button:hover,
+.booking-button:hover,
+.pay-button:hover,
+.home-button:hover {
+    background: #103f58;
+}
+
+
+/* =========================================================
+   СТРАНИЦА РЕЗУЛЬТАТОВ РЕЙСОВ
+   ========================================================= */
+
+.flights-page {
+    min-height: calc(100vh - 150px);
+
+    background: transparent;
+
+    padding: 35px 30px 60px;
+}
+
+
+/* =========================================================
+   ЗАГОЛОВОК РЕЗУЛЬТАТОВ
+   ========================================================= */
+
+.flights-header {
+    max-width: 1000px;
+
+    margin: 0 auto 25px;
+
+    padding: 25px 30px;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.10);
+}
+
+.flights-header h1 {
+    margin: 0;
+
+    font-size: 36px;
+
+    color: #20242a;
+}
+
+.flights-header p {
+    margin: 8px 0 0;
+
+    font-size: 18px;
+
+    color: #69737d;
+}
+
+
+/* =========================================================
+   КАРТОЧКА РЕЙСА
+   ========================================================= */
+
+.flight-card {
+    max-width: 1000px;
+
+    margin: 0 auto 18px;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border-radius: 18px;
+
+    padding: 25px 30px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 30px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.10);
+
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+
+.flight-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+
+/* =========================================================
+   ИНФОРМАЦИЯ О РЕЙСЕ
+   ========================================================= */
+
+.flight-info {
+    flex: 1;
+
+    min-width: 0;
+}
+
+.flight-route {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    font-size: 24px;
+
+    margin-bottom: 15px;
+}
+
+.flight-route span {
+    color: #0c2f42;
+
+    font-size: 25px;
+}
+
+.flight-details {
+    display: flex;
+
+    gap: 25px;
+
+    flex-wrap: wrap;
+
+    color: #59636e;
+
+    font-size: 15px;
+}
+
+.airport-codes {
+    margin-top: 12px;
+
+    color: #7a848e;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   ЦЕНА И КНОПКА
+   ========================================================= */
+
+.flight-price {
+    min-width: 170px;
+
+    text-align: right;
+}
+
+.flight-price strong {
+    display: block;
+
+    font-size: 25px;
+
+    color: #20242a;
+
+    margin-bottom: 12px;
+}
+
+.flight-price button {
+    padding: 12px 20px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s,
+        transform 0.2s;
+}
+
+.flight-price button:hover {
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   РЕЙСЫ НЕ НАЙДЕНЫ
+   ========================================================= */
+
+.no-flights {
+    max-width: 700px;
+
+    margin: 50px auto;
+
+    padding: 40px;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border-radius: 18px;
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.10);
+}
+
+.no-flights h3 {
+    margin: 0 0 10px;
+
+    font-size: 26px;
+}
+
+.no-flights p {
+    margin: 0;
+
+    color: #69737d;
+
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   СТРАНИЦА БРОНИРОВАНИЯ
+   ========================================================= */
+
+.booking-page {
+    min-height: calc(100vh - 150px);
+
+    background: transparent;
+
+    padding: 35px 20px 60px;
+
+    color: #20242a;
+}
+
+
+/* =========================================================
+   ЗАГОЛОВОК БРОНИРОВАНИЯ
+   ========================================================= */
+
+.booking-header {
+    max-width: 800px;
+
+    margin: 0 auto 25px;
+
+    padding: 25px 30px;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.10);
+}
+
+.booking-header h1 {
+    margin: 0;
+
+    font-size: 36px;
+}
+
+.booking-header p {
+    margin: 8px 0 0;
+
+    color: #69737d;
+
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   ВЫБРАННЫЙ РЕЙС
+   ========================================================= */
+
+.selected-flight {
+    max-width: 800px;
+
+    margin: 0 auto 25px;
+
+    padding: 25px;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.10);
+}
+
+.selected-flight h2 {
+    margin: 0 0 15px;
+
+    font-size: 30px;
+
+    text-align: center;
+}
+
+.booking-flight-info {
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 25px;
+
+    flex-wrap: wrap;
+
+    padding-top: 15px;
+
+    border-top: 1px solid #e5e8eb;
+
+    color: #59636e;
+
+    font-size: 15px;
+}
+
+.booking-flight-info strong {
+    color: #20242a;
+
+    font-size: 20px;
+}
+
+.booking-airports {
+    margin-top: 15px;
+
+    text-align: center;
+
+    color: #7a848e;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   ФОРМА ПАССАЖИРА
+   ========================================================= */
+
+.passenger-form {
+    max-width: 800px;
+
+    margin: 0 auto;
+
+    padding: 30px;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.10);
+}
+
+.passenger-form h2 {
+    margin: 0 0 25px;
+
+    font-size: 25px;
+}
+
+
+/* =========================================================
+   ПОЛЯ ФОРМЫ
+   ========================================================= */
+
+.form-row {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 18px;
+
+    margin-bottom: 18px;
+}
+
+.passenger-form .field {
+    margin-bottom: 18px;
+}
+
+.passenger-form label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    color: #303840;
+}
+
+.passenger-form input {
+    width: 100%;
+
+    height: 46px;
+
+    padding: 0 14px;
+
+    border: 1px solid #cfd6dd;
+
+    border-radius: 9px;
+
+    background: white;
+
+    font-size: 15px;
+
+    outline: none;
+}
+
+.passenger-form input:focus {
+    border-color: #0c2f42;
+
+    box-shadow:
+        0 0 0 3px rgba(12, 47, 66, 0.12);
+}
+
+
+/* =========================================================
+   КНОПКА БРОНИРОВАНИЯ
+   ========================================================= */
+
+.booking-button {
+    display: block;
+
+    width: 100%;
+
+    margin: 25px auto 0;
+
+    padding: 15px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    font-size: 17px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s,
+        transform 0.2s;
+}
+
+.booking-button:hover {
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   АДАПТИВНОСТЬ
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    .flights-page {
+        padding: 30px 15px 50px;
+    }
+
+    .flights-header {
+        padding: 22px;
+    }
+
+    .flight-card {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        padding: 22px;
+    }
+
+    .flight-route {
+        font-size: 21px;
+    }
+
+    .flight-price {
+        text-align: left;
+
+        min-width: 0;
+    }
+
+    .flight-price button {
+        width: 100%;
+    }
+
+    .booking-page {
+        padding: 30px 15px 50px;
+    }
+
+    .booking-header {
+        padding: 22px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-flight-info {
+        flex-direction: column;
+
+        gap: 10px;
+    }
+}
+
+
+@media (max-width: 500px) {
+
+    .flights-header h1 {
+        font-size: 29px;
+    }
+
+    .flight-route {
+        font-size: 19px;
+
+        gap: 10px;
+    }
+
+    .flight-details {
+        flex-direction: column;
+
+        gap: 8px;
+    }
+
+    .selected-flight h2 {
+        font-size: 24px;
+    }
+
+    .passenger-form {
+        padding: 22px;
+    }
+
+    .booking-header h1 {
+        font-size: 29px;
+    }
+}

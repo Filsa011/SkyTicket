@@ -1,0 +1,210 @@
+@page "/payment"
+@rendermode InteractiveServer
+
+@using Microsoft.EntityFrameworkCore
+@using SkyTicket.Data.Models
+
+@inject SkyTicketContext Db
+@inject NavigationManager Navigation
+
+<PageTitle>Оплата — SkyTicket</PageTitle>
+
+<div class="payment-page">
+
+    <div class="payment-header">
+
+        <h1>Оплата билета</h1>
+
+        <p>Проверьте данные перед оплатой</p>
+
+    </div>
+
+
+    @if (flight == null)
+    {
+        <p>Загрузка информации...</p>
+    }
+    else
+    {
+        <div class="payment-card">
+
+            <h2>Ваш рейс</h2>
+
+            <div class="route">
+
+                <strong>
+                    @flight.DepartureAirport.City
+                </strong>
+
+                <span>→</span>
+
+                <strong>
+                    @flight.ArrivalAirport.City
+                </strong>
+
+            </div>
+
+
+            <div class="payment-info">
+
+                <p>
+                    <strong>Рейс:</strong>
+                    @flight.FlightNumber
+                </p>
+
+                <p>
+                    <strong>Дата:</strong>
+                    @flight.DepartureTime.ToString("dd.MM.yyyy")
+                </p>
+
+                <p>
+                    <strong>Время:</strong>
+                    @flight.DepartureTime.ToString("HH:mm")
+                </p>
+
+                <p>
+                    <strong>Место:</strong>
+                    @Seat
+                </p>
+
+                <p class="price">
+                    <strong>Стоимость:</strong>
+                    @flight.Price.ToString("N0") ₽
+                </p>
+
+            </div>
+
+
+            <div class="payment-method">
+
+                <h2>Способ оплаты</h2>
+
+                <select @bind="PaymentMethod">
+
+                    <option value="Банковская карта">
+                        Банковская карта
+                    </option>
+
+                    <option value="СБП">
+                        СБП
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button class="pay-button"
+                    @onclick="Pay">
+
+                Оплатить @flight.Price.ToString("N0") ₽
+
+            </button>
+
+        </div>
+    }
+
+</div>
+
+
+@code {
+
+    [SupplyParameterFromQuery(Name = "flightId")]
+    private int? FlightId { get; set; }
+
+
+    [SupplyParameterFromQuery(Name = "passengerId")]
+    private int? PassengerId { get; set; }
+
+
+    [SupplyParameterFromQuery(Name = "seat")]
+    private string? Seat { get; set; }
+
+
+    private Flight? flight;
+
+
+    private string PaymentMethod = "Банковская карта";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (FlightId.HasValue)
+        {
+            flight = await Db.Flights
+                .Include(f => f.DepartureAirport)
+                .Include(f => f.ArrivalAirport)
+                .FirstOrDefaultAsync(
+                    f => f.Id == FlightId.Value);
+        }
+    }
+
+
+    private async Task Pay()
+    {
+        if (!FlightId.HasValue ||
+            !PassengerId.HasValue ||
+            string.IsNullOrWhiteSpace(Seat) ||
+            flight == null)
+        {
+            return;
+        }
+
+
+        bool seatAlreadyBooked = await Db.Bookings
+            .AnyAsync(b =>
+                b.FlightId == FlightId.Value &&
+                b.SeatNumber == Seat);
+
+
+        if (seatAlreadyBooked)
+        {
+            return;
+        }
+
+
+        SkyTicket.Data.Models.Booking booking =
+            new SkyTicket.Data.Models.Booking
+            {
+                FlightId = FlightId.Value,
+
+                PassengerId = PassengerId.Value,
+
+                SeatNumber = Seat,
+
+                BookingDate = DateTime.Now,
+
+                Status = "Оплачено"
+            };
+
+
+        Db.Bookings.Add(booking);
+
+        await Db.SaveChangesAsync();
+
+
+        SkyTicket.Data.Models.Payment payment =
+            new SkyTicket.Data.Models.Payment
+            {
+                BookingId = booking.Id,
+
+                Amount = flight.Price,
+
+                PaymentDate = DateTime.Now,
+
+                PaymentMethod = PaymentMethod,
+
+                Status = "Оплачено"
+            };
+
+
+        Db.Payments.Add(payment);
+
+        await Db.SaveChangesAsync();
+
+
+        Navigation.NavigateTo(
+            $"/success?bookingId={booking.Id}");
+    }
+
+}
